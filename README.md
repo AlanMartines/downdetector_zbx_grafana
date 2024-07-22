@@ -22,7 +22,7 @@ pip3 install bs4
 pip3 install requests
 pip3 install cloudscraper
 pip install six
-pip install urllib3 --upgrade</pre>
+pip install --upgrade urllib3 chardet requests</pre>
 
 Caso já tenha o pip instalado e queira instalar as dependencias rode:
 ```
