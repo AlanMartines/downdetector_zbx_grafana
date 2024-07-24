@@ -10,6 +10,7 @@ import ssl
 import re
 import random
 from bs4 import BeautifulSoup
+
 if ssl.OPENSSL_VERSION_INFO[0] < 1 or ssl.OPENSSL_VERSION_INFO[1] < 1 or ssl.OPENSSL_VERSION_INFO[2] < 1:
     user_agent_list = [
         # Chrome
@@ -56,7 +57,6 @@ else:
 
 
 def request(dd_site):
-    #url = "https://downdetector.com.br/fora-do-ar/{}/".format(dd_site)#
     url = "http://downdetector.com.br/fora-do-ar/{}/".format(dd_site)
     if not craw:
         print(0)
@@ -95,11 +95,12 @@ if response.status_code != 200:
 
 bs = BeautifulSoup(response.text, 'html.parser')
 dataParse = bs.find("div", {"class": "entry-title"})
-status = dataParse.attrs["class"][2].split('-')[1]
 
-if status in ['success', 'warning', 'danger']:
-    parse_result(status)
+if dataParse and "class" in dataParse.attrs and len(dataParse.attrs["class"]) > 2:
+    status = dataParse.attrs["class"][2].split('-')[1]
 else:
     failover = re.compile(".*status: '(.*)',.*", re.MULTILINE)
     failover_status = failover.findall(response.text).pop()
-    parse_result(failover_status)
+    status = failover_status
+
+parse_result(status)
