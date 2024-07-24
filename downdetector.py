@@ -10,7 +10,6 @@ import ssl
 import re
 import random
 from bs4 import BeautifulSoup
-
 if ssl.OPENSSL_VERSION_INFO[0] < 1 or ssl.OPENSSL_VERSION_INFO[1] < 1 or ssl.OPENSSL_VERSION_INFO[2] < 1:
     user_agent_list = [
         # Chrome
@@ -55,10 +54,14 @@ else:
     import cloudscraper
     craw = "cloudscraper"
 
+PARAMS = {
+    'Relatórios de usuários indicam que não há problemas': 'success',
+    'Relatórios de usuários indicam potenciais problemas': 'warning',
+    'Relatórios de usuários indicam problemas': 'danger'
+}
 
 def request(dd_site):
-    #url = "https://downdetector.com.br/fora-do-ar/{}/".format(dd_site)#
-    url = "http://downdetector.com.br/fora-do-ar/{}/".format(dd_site)
+    url = "https://downdetector.com.br/fora-do-ar/{}/".format(dd_site)
     if not craw:
         print(0)
         exit()
@@ -82,26 +85,32 @@ def parse_result(status_text):
     print(status_number)
     exit()
 
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("Informe o site que gostaria de verificar")
+        sys.exit(1)
+    site = sys.argv[1]
 
-if len(sys.argv) < 2:
-    print("Informe o site que gostaria de verificar")
-    sys.exit(1)
-site = sys.argv[1]
+    response = request(site)
 
-response = request(site)
+    if response.status_code != 200:
+        print(0)
+        exit()
 
-if response.status_code != 200:
-    print(0)
-    exit()
-
-bs = BeautifulSoup(response.text, 'html.parser')
-dataParse = bs.find("div", {"class": "entry-title"})
-
-if dataParse and "class" in dataParse.attrs and len(dataParse.attrs["class"]) > 2:
-    status = dataParse.attrs["class"][2].split('-')[1]
-else:
-    failover = re.compile(".*status: '(.*)',.*", re.MULTILINE)
-    failover_status = failover.findall(response.text).pop()
-    status = failover_status
-
-parse_result(status)
+    try:
+        bs = BeautifulSoup(response.text, 'html.parser')
+        dataParse = bs.find("div", {"class": "entry-title"})
+        status = dataParse.text.strip()
+        result = None
+        if not status:
+            raise ValueError('')
+        for param in PARAMS:
+            if re.compile(r"{}.*".format(param)).match(status):
+                result = PARAMS[param]
+        if not result:
+            raise ValueError('')
+        parse_result(result)
+    except Exception as err:
+        failover = re.compile(".*status: '(.*)',.*", re.MULTILINE)
+        failover_status = failover.findall(response.text).pop()
+        parse_result(failover_status)
