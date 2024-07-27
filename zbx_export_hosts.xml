@@ -4,13 +4,13 @@
     <date>2020-04-20T23:38:05Z</date>
     <groups>
         <group>
-            <name>DownDetector</name>
+            <name>Downdetector</name>
         </group>
     </groups>
     <hosts>
         <host>
-            <host>DownDetector</host>
-            <name>DownDetector</name>
+            <host>Downdetector</host>
+            <name>Downdetector</name>
             <templates>
                 <template>
                     <name>RR DownDetector Discovery</name>
@@ -18,7 +18,7 @@
             </templates>
             <groups>
                 <group>
-                    <name>DownDetector</name>
+                    <name>Downdetector</name>
                 </group>
             </groups>
             <interfaces>
